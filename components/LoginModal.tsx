@@ -239,7 +239,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             </div>
             {/* Version Indicator */}
             <div className="absolute bottom-2 right-4 text-[10px] text-white/20 font-mono">
-                v1.2 (Mobile FAB)
+                v1.3 (FAB Fix)
             </div>
         </div>
     );

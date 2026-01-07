@@ -92,7 +92,8 @@ export const loginWithGoogle = async (): Promise<User> => {
                 phone: ''
             } as any;
 
-            await setDoc(userRef, newUser);
+            // OPTIMIZATION: Save to Firestore in background to speed up UI response
+            setDoc(userRef, newUser).catch(err => console.error("Background user creation failed:", err));
             userData = newUser;
         }
 
