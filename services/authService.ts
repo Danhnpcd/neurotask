@@ -120,8 +120,18 @@ PROJECT ID HIỆN TẠI: ${projectId}
     }
 };
 
-export const logout = async () => {
-    await signOut(auth);
+export const logoutUser = async () => {
+    try {
+        await signOut(auth);
+        // Dọn dẹp LocalStorage
+        localStorage.removeItem('google_access_token');
+        localStorage.removeItem('isDemoMode');
+        // Có thể xóa thêm các key khác nếu cần
+        return true;
+    } catch (error) {
+        console.error("Logout Error:", error);
+        throw error;
+    }
 };
 
 export const getUserProfile = async (uid: string): Promise<User | null> => {

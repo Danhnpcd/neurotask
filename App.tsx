@@ -19,7 +19,7 @@ import { subscribeToProjects, addProject, deleteProject, updateProject } from '.
 import { subscribeToTasks, subscribeToAllTasks, addTask, updateTask, deleteTask } from './services/taskService';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { getUserProfile, logout, updateUserProfile } from './services/authService';
+import { getUserProfile, logoutUser, updateUserProfile } from './services/authService';
 import LoginModal from './components/LoginModal';
 import LandingPage from './src/pages/LandingPage';
 import { BrowserRouter } from 'react-router-dom';
@@ -287,11 +287,17 @@ const App: React.FC = () => {
         setCurrentUser(null);
         setProjects([]);
         setLocalTasks([]);
+        setActiveTab('dashboard');
       } else {
-        await logout();
-        setCurrentUser(null);
+        try {
+          await logoutUser();
+          // QUAN TRỌNG: Ép tải lại trang để về Landing Page sạch sẽ
+          window.location.reload();
+        } catch (error) {
+          console.error("Lỗi đăng xuất:", error);
+          alert("Đăng xuất thất bại. Vui lòng thử lại.");
+        }
       }
-      setActiveTab('dashboard');
     }
   };
 
