@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@config "./tailwind.config.js";
+
+/* Custom Scrollbar cho Dark Mode */
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e1e1e;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+}
+
+body {
+  @apply bg-bg-dark text-text-main;
+  font-family: 'Inter', sans-serif;
+}

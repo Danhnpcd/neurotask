@@ -1,0 +1,5 @@
+{
+  "name": "NeuroTask Dashboard",
+  "description": "A dark-mode neumorphic project management dashboard with React and Firebase.",
+  "requestFramePermissions": []
+}
