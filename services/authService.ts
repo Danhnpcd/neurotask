@@ -16,8 +16,7 @@ import {
 } from 'firebase/firestore';
 import { User } from '../types';
 
-const provider = new GoogleAuthProvider();
-provider.addScope('https://www.googleapis.com/auth/calendar.events');
+
 
 // Map Firebase User to our App User (cơ bản)
 const mapUser = (firebaseUser: FirebaseUser, role: 'admin' | 'member', additionalData: any = {}): User => {
@@ -32,6 +31,12 @@ const mapUser = (firebaseUser: FirebaseUser, role: 'admin' | 'member', additiona
 };
 
 export const loginWithGoogle = async (): Promise<User> => {
+    const provider = new GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/calendar.events');
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+
     try {
         const result = await signInWithPopup(auth, provider);
 
