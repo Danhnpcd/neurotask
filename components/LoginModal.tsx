@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { loginWithGoogle, registerWithPassword, loginWithPassword } from '../services/authService';
+import { sendWelcomeEmail } from '../services/emailService';
 import { Box, X, User, Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
 
 interface LoginModalProps {
@@ -15,7 +16,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const [form, setForm] = useState({
         name: '',
         emailOrUsername: '',
-        password: ''
+        password: '',
+        confirmPassword: '' // Added for validation
     });
 
     if (!isOpen) return null;
@@ -31,24 +33,50 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
         try {
             if (isRegister) {
-                if (!form.name || !form.emailOrUsername || !form.password) {
+                // VALIDATION
+                if (!form.name || !form.emailOrUsername || !form.password || !form.confirmPassword) {
                     throw new Error("Vui lòng điền đầy đủ thông tin.");
                 }
+                if (form.password !== form.confirmPassword) {
+                    throw new Error("Mật khẩu xác nhận không khớp.");
+                }
+                if (form.password.length < 6) {
+                    throw new Error("Mật khẩu phải có ít nhất 6 ký tự.");
+                }
+
+                // 1. REGISTER ON FIREBASE
                 await registerWithPassword(form.name, form.emailOrUsername, form.password);
+
+                // 2. SEND WELCOME EMAIL
+                // Note: We use 'form.name' as 'username/to_name' and 'form.emailOrUsername' as 'email'
+                // Assuming user entered a valid email in emailOrUsername field for registration
+                try {
+                    await sendWelcomeEmail(form.name, form.emailOrUsername, form.password);
+                    console.log("Welcome email sent.");
+                } catch (emailErr) {
+                    console.warn("Could not send email:", emailErr);
+                    // Don't block registration success if email fails, but maybe alert user?
+                    // For now, we proceed as success.
+                }
+
+                alert("Đăng ký thành công! Kiểm tra email để xem thông tin.");
+                onClose();
             } else {
+                // LOGIN
                 if (!form.emailOrUsername || !form.password) {
                     throw new Error("Vui lòng nhập tài khoản và mật khẩu.");
                 }
                 await loginWithPassword(form.emailOrUsername, form.password);
+                onClose();
             }
-            onClose();
         } catch (err: any) {
             console.error(err);
             let msg = "Đã có lỗi xảy ra.";
-            if (err.code === 'auth/email-already-in-use') msg = "Tài khoản đã tồn tại.";
+            if (err.code === 'auth/email-already-in-use') msg = "Email đã được sử dụng.";
             if (err.code === 'auth/wrong-password') msg = "Sai mật khẩu.";
             if (err.code === 'auth/user-not-found') msg = "Tài khoản không tồn tại.";
-            if (err.code === 'auth/invalid-email') msg = "Email/Tên đăng nhập không hợp lệ.";
+            if (err.code === 'auth/invalid-email') msg = "Email không hợp lệ.";
+            if (err.code === 'auth/weak-password') msg = "Mật khẩu quá yếu.";
             if (err.message) msg = err.message;
             setError(msg);
         } finally {
@@ -121,7 +149,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         <input
                             type="text"
                             name="emailOrUsername"
-                            placeholder="Email hoặc Tên đăng nhập"
+                            placeholder={isRegister ? "Email" : "Email hoặc Tên đăng nhập"}
                             value={form.emailOrUsername}
                             onChange={handleChange}
                             className="w-full pl-12 pr-4 py-3 bg-bg-dark border border-white/10 rounded-xl text-text-main placeholder-text-sub/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
@@ -139,6 +167,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                             className="w-full pl-12 pr-4 py-3 bg-bg-dark border border-white/10 rounded-xl text-text-main placeholder-text-sub/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
                         />
                     </div>
+
+                    {isRegister && (
+                        <div className="relative group">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub group-focus-within:text-primary transition-colors" size={18} />
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                placeholder="Nhập lại mật khẩu"
+                                value={form.confirmPassword}
+                                onChange={handleChange}
+                                className="w-full pl-12 pr-4 py-3 bg-bg-dark border border-white/10 rounded-xl text-text-main placeholder-text-sub/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                            />
+                        </div>
+                    )}
 
                     <button
                         type="submit"
