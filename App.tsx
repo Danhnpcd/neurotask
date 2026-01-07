@@ -479,6 +479,20 @@ const App: React.FC = () => {
           </button>
         )}
 
+        {/* Mobile FAB */}
+        {activeTab === 'dashboard' && selectedProjectId && projects.length > 0 && (
+          <button
+            onClick={() => {
+              if (handleRequireLogin()) {
+                setIsTaskModalOpen(true);
+              }
+            }}
+            className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-black rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,224,255,0.6)] z-50 active:scale-95 transition-all md:hidden"
+          >
+            <Plus size={32} strokeWidth={2.5} />
+          </button>
+        )}
+
       </main>
 
       <MobileNavbar
