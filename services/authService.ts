@@ -123,15 +123,15 @@ PROJECT ID HIỆN TẠI: ${projectId}
 export const logoutUser = async () => {
     try {
         await signOut(auth);
-        // Dọn dẹp LocalStorage
+    } catch (error) {
+        console.error("Logout Warning (Firebase):", error);
+    } finally {
+        // Always cleanup
         localStorage.removeItem('google_access_token');
         localStorage.removeItem('isDemoMode');
-        // Có thể xóa thêm các key khác nếu cần
-        return true;
-    } catch (error) {
-        console.error("Logout Error:", error);
-        throw error;
+        // Clear any other auth related keys if they exist
     }
+    return true;
 };
 
 export const getUserProfile = async (uid: string): Promise<User | null> => {
