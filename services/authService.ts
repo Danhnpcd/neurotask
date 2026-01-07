@@ -6,7 +6,9 @@ import {
     User as FirebaseUser,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    updateProfile
+    updateProfile,
+    setPersistence,
+    inMemoryPersistence
 } from 'firebase/auth';
 import {
     doc,
@@ -122,6 +124,8 @@ PROJECT ID HIỆN TẠI: ${projectId}
 
 export const logoutUser = async () => {
     try {
+        // Attempt to clear persistence first (forcing it to memory only clears existing local storage persistence)
+        await setPersistence(auth, inMemoryPersistence);
         await signOut(auth);
     } catch (error) {
         console.error("Logout Warning (Firebase):", error);
